@@ -136,7 +136,10 @@ if __name__ == "__main__":
     patch_initialize_efuse_data(data)
     patch_set_warranty_void_bit_reason(data)
     patch_set_warranty_bit(data)
-    patch_read_rmm_rpmb(data)
+    try:
+    	patch_read_rmm_rpmb(data)
+    except ValueError:
+        print("Rmm not found! (Ignore if taget is Note 10 Lite)")
     patch_read_kg_rpmb(data)
     patch_have_this_mode(data)
 
