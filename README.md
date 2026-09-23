@@ -78,7 +78,7 @@ python houston-pub/houston.py -e -p boot_custom_key.bin \
 
 ## 6. Flash via ODIN
 
-Pack the updated contents of `bl/` into a `.tar` archive and flash it using ODIN.
+Pack the updated contents of `bl_out/` into a `.tar` archive and flash it using ODIN.
 
 ## 7. Boot from UFS
 
