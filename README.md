@@ -21,28 +21,34 @@ bl/sboot.bin
 
 ## 2. Split `sboot.bin`
 
+Run the `split.py` script, and supply it with your SOC, the bl directory from earlier, and an output directory.
+
+Example:
+
 ```bash
-python scripts/split.py bl/sboot.bin sboot
+python scripts/split.py s5e9810 bl bl_out
 ```
 
-This extracts the individual components of `sboot.bin` into a working `sboot/` directory.
+This extracts the individual components of `sboot.bin` into a working `bl_out/sboot` directory, while also copying `cm.bin` and `keystorage.bin` into `bl_out`
 
 ## 3. Patch `u-boot.bin`
 
-Run the patch script:
+Run the patch script that corresponds to your SOC.
+
+Example:
 
 ```bash
-python scripts/patch.py sboot/u-boot.bin
+python scripts/patch_9810.py sboot/u-boot.bin
 ```
 
 **Optional — enable key fusing:**
-If you want the patched `sboot.bin` to fuse a custom `SEC_BOOT_KEY` when it later boots from UFS and enters download mode, open `patch.py` *before* running it and set:
+If you want the patched `sboot.bin` to fuse a custom `SEC_BOOT_KEY` when it later boots from UFS and enters download mode, open `patch_[SOC].py` *before* running it and set:
 
 ```python
 should_fuse_key = True
 ```
 
-If you don't want fusing to happen, leave this flag untouched (default) and simply run `patch.py` as-is.
+If you don't want fusing to happen, leave this flag untouched (default) and simply run `patch_[SOC].py` as-is.
 
 > ⚠️ **Warning:** Fusing `SEC_BOOT_KEY` is a **one-way, irreversible operation**. Once fused, the device will permanently require boot images signed with your custom key, and this cannot be undone. Only set `should_fuse_key = True` if you fully understand the implications and have verified your setup on a device you are prepared to lose if something goes wrong.
 
@@ -62,12 +68,12 @@ Use `houston.py` to boot the payload with the custom-key boot binary:
 
 ```bash
 python houston-pub/houston.py -e -p boot_custom_key.bin \
-  sboot/fwbl1.bin \
-  sboot/bl31.bin \
-  sboot/bl2.bin \
-  sboot/fwbl1.bin \
-  sboot/u-boot.bin \
-  sboot/el3_mon.bin
+  bl_out/sboot/fwbl1.bin \
+  bl_out/sboot/bl31.bin \
+  bl_out/sboot/bl2.bin \
+  bl_out/sboot/fwbl1.bin \
+  bl_out/sboot/u-boot.bin \
+  bl_out/sboot/el3_mon.bin
 ```
 
 ## 6. Flash via ODIN
@@ -84,12 +90,12 @@ Repeat the boot command:
 
 ```bash
 python houston-pub/houston.py -e -p boot_custom_key.bin \
-  sboot/fwbl1.bin \
-  sboot/bl31.bin \
-  sboot/bl2.bin \
-  sboot/fwbl1.bin \
-  sboot/u-boot.bin \
-  sboot/el3_mon.bin
+  bl_out/sboot/fwbl1.bin \
+  bl_out/sboot/bl31.bin \
+  bl_out/sboot/bl2.bin \
+  bl_out/sboot/fwbl1.bin \
+  bl_out/sboot/u-boot.bin \
+  bl_out/sboot/el3_mon.bin
 ```
 
 Then try to enter download mode/hold power for boot. If `should_fuse_key` was set in step 3, `SEC_BOOT_KEY` will be fused at this point.
