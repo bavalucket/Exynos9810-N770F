@@ -16,5 +16,6 @@ def soc_data():
                 Image("secure_payload.bin"),
                 Image("tail.bin", stage=None),
             )),
+            Image("R7_EUR_OPEN.pit")
         )
     )
