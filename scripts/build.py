@@ -40,6 +40,8 @@ def build_image(image, parent_dir, keys_path, signing_type, rb_count):
             [os.path.join(parts_dir, child.name) for child in image.split],
             image_path,
         )
+    if image.crypt is not None:
+        image.crypt(image_path, False)
     if image.stage is not None:
         sign(image_path, stage=image.stage, update_header=image.update_header, no_crc=image.no_crc, ree=image.ree, signing_type=signing_type, keys_path=keys_path, rb_count=rb_count)
 
