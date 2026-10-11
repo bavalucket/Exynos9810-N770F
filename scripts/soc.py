@@ -5,6 +5,7 @@ class Image:
     name: str
     stage: str | None = "st2"
     update_header: bool = False
+    no_crc: bool = False
     ree: bool = False
     split: tuple["Image", ...] = ()
 

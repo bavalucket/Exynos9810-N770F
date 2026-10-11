@@ -8,12 +8,12 @@ def soc_data():
             Image("keystorage.bin"),
             Image("sboot.bin", split=(
                 Image("fwbl1.bin", stage="st1"),
-                Image("bl31.bin", update_header=True),
+                Image("bl31.bin", update_header=True, no_crc=True),
                 Image("bl2.bin"),
                 Image("pad.bin", stage=None),
                 Image("u-boot.bin"),
                 Image("el3_mon.bin"),
-                Image("secure_payload.bin"),
+                Image("ssp.img"),
                 Image("tail.bin", stage=None),
             )),
         )
