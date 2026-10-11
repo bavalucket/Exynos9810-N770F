@@ -337,7 +337,10 @@ def split_file_wrapper(data, sboot_split_names, output_dir, footer):
 def process_image(img, indir, outdir, footer):
     img_path = os.path.join(indir, img.name)
     if not getattr(img, "split", None):
-        shutil.copy(img_path, os.path.join(outdir, img.name))
+        out_path = os.path.join(outdir, img.name)
+        shutil.copy(img_path, out_path)
+        if img.crypt is not None:
+            img.crypt(out_path, True)
         return
 
     with open(img_path, "rb") as fp:
@@ -350,6 +353,8 @@ def process_image(img, indir, outdir, footer):
     for child in img.split:
         if getattr(child, "split", None):
             process_image(child, out_dir, out_dir, footer)
+        elif child.crypt is not None:
+            child.crypt(os.path.join(out_dir, child.name), True)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Samsung Exynos bootloader splitter")

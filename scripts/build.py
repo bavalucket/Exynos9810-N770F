@@ -4,10 +4,12 @@ import os
 import subprocess
 import sys
 
-def sign(image_path, stage, update_header, ree, signing_type, keys_path, rb_count):
+def sign(image_path, stage, update_header, no_crc, ree, signing_type, keys_path, rb_count):
     cmd = [sys.executable, "scripts/sign.py", image_path, keys_path, stage]
     if update_header:
         cmd.append("--update-header")
+    if no_crc:
+        cmd.append("--no-crc")
     if ree:
         cmd += ["--st2-key-type", "1"]
     if rb_count is not None:
@@ -38,8 +40,10 @@ def build_image(image, parent_dir, keys_path, signing_type, rb_count):
             [os.path.join(parts_dir, child.name) for child in image.split],
             image_path,
         )
+    if image.crypt is not None:
+        image.crypt(image_path, False)
     if image.stage is not None:
-        sign(image_path, stage=image.stage, update_header=image.update_header, ree=image.ree, signing_type=signing_type, keys_path=keys_path, rb_count=rb_count)
+        sign(image_path, stage=image.stage, update_header=image.update_header, no_crc=image.no_crc, ree=image.ree, signing_type=signing_type, keys_path=keys_path, rb_count=rb_count)
 
 def main(argv=None):
     if argv is None:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import binascii
 import hashlib
 import hmac
 import mmap
@@ -91,7 +92,7 @@ def sign_st1(data, sign_type, st1_privatekey, st2_privatekeys, hmac_key, rb_coun
     sbl1.checksum = int.from_bytes(header_digest(data, sign_type), "little")
     return data
 
-def sign_st2(data, sign_type, st2_privatekey, rb_count, key_type, key_index, update_header, has_signer, signerinfo_values, append_st2):
+def sign_st2(data, sign_type, st2_privatekey, rb_count, key_type, no_crc, update_header, has_signer, signerinfo_values, append_st2):
     footer_type = ST2RSA if sign_type == 0 else ST2ECDSA
     footer_size = ctypes.sizeof(footer_type)
     signerinfo_size = ctypes.sizeof(SignerInfo)
@@ -134,8 +135,7 @@ def sign_st2(data, sign_type, st2_privatekey, rb_count, key_type, key_index, upd
             footer.rb_count = rb_count
         footer.sign_type = sign_type
         footer.key_type = key_type
-        if key_index is not None:
-            footer.key_index = key_index
+        footer.key_index = 0 if no_crc else binascii.crc32(pubkey_blob(st2_privatekey.public_key(), sign_type)) & 0xFFFFFFFF
         if sign_type != 0:
             footer.padding[:] = bytes(len(footer.padding))
 
@@ -171,7 +171,7 @@ if __name__ == "__main__":
     ap.add_argument("--rb-count", type=int, default=None, help="Override rb_count of image")
     ap.add_argument("--signing-type", type=int, choices=[0, 4], default=4, help="Type of signature to use")
     ap.add_argument("--st2-key-type", type=int, choices=[0, 1], default=0, help="V5 only. 0 = tee, 1 = ree")
-    ap.add_argument("--st2-key-index", type=lambda value: int(value, 16), default=None, help="Override ST2 key index (hex)")
+    ap.add_argument("--no-crc", action="store_true", help="Set the ST2 public-key CRC to zero instead of calculating it")
     ap.add_argument("--append_st2", action="store_true", help="Append a new ST2 footer instead of resigning one")
     ap.add_argument("--has_signer", action="store_true", help="Ensure a 0x100-byte SignerInfo exists before ST2")
     for field, _ in SignerInfo._fields_:
@@ -208,7 +208,7 @@ if __name__ == "__main__":
         if args.stage == "st1":
             sign_st1(data, args.signing_type, st1_privatekey, st2_privatekeys, hmac_key, args.rb_count)
         else:
-            sign_st2(data, args.signing_type, st2_privatekeys[args.st2_key_type], args.rb_count, args.st2_key_type, args.st2_key_index, args.update_header, args.has_signer, signerinfo_values, args.append_st2)
+            sign_st2(data, args.signing_type, st2_privatekeys[args.st2_key_type], args.rb_count, args.st2_key_type, args.no_crc, args.update_header, args.has_signer, signerinfo_values, args.append_st2)
 
         if use_mmap:
             data.flush()
