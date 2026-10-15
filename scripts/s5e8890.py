@@ -4,23 +4,23 @@ def soc_data():
     return SoC(
         signing_type=0,
         odin=(
-            Image("cm.bin"),
-            Image("sboot.bin", split=(
+            Image("cm.bin", no_crc=True),
+            Image("sboot.bin", no_crc=True, split=(
                 Image("fwbl1.bin", stage="st1"),
-                Image("bl31.bin", update_header=True),
-                Image("bl2.bin"),
+                Image("bl31.bin", update_header=True, no_crc=True),
+                Image("bl2.bin", no_crc=True),
                 Image("pad.bin", stage=None),
-                Image("u-boot.bin"),
-                Image("el3_mon.bin"),
+                Image("u-boot.bin", no_crc=True),
+                Image("el3_mon.bin", no_crc=True),
                 Image("tail.bin", stage=None),
             )),
-            Image("modem.bin", split=(
+            Image("modem.bin", no_crc=True, split=(
                 Image("TOC.bin", stage=None),
-                Image("BOOT.bin"),
+                Image("BOOT.bin", no_crc=True),
                 Image("pad.bin", stage=None),
-                Image("MAIN.bin"),
+                Image("MAIN.bin", no_crc=True),
                 Image("tail.bin", stage=None),
             )),
-            Image("HERO2LTE_EUR_OPEN_HIDDEN45M.pit")
+            Image("HERO2LTE_EUR_OPEN_HIDDEN45M.pit", no_crc=True)
         )
     )
