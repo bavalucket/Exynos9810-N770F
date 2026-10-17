@@ -11,7 +11,7 @@ def soc_data():
                 Image("bl2.bin", no_crc=True),
                 Image("pad.bin", stage=None),
                 Image("u-boot.bin", no_crc=True),
-                Image("el3_mon.bin", no_crc=True),
+                Image("ssp.img", no_crc=True),
                 Image("tail.bin", stage=None),
             )),
             Image("modem.bin", no_crc=True, split=(
